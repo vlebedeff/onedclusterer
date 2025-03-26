@@ -99,15 +99,15 @@ module OnedClusterer
     end
 
     def fill_dp_matrix(data, distance, backtrack)
-      for i in 1..kmax
+      1.upto(kmax) do |i|
         distance[i][1] = 0.0
         backtrack[i][1] = 1
       end
 
-      for k in 1..kmax
+      1.upto(kmax) do |k|
         mean_x1 = data[1]
 
-        for i in ([2,k].max)..@data_size
+        ([2,k].max).upto(@data_size) do |i|
           if k == 1
             distance[k][i] = distance[k][i-1] + (i-1) / Float(i) * (data[i] - mean_x1) ** 2
             mean_x1 = ((i - 1) * mean_x1 + data[i]) / Float(i)
@@ -116,7 +116,7 @@ module OnedClusterer
             d = 0.0 # the sum of squared distances from x_j ,. . ., x_i to their mean
             mean_xj = 0.0
 
-            for j in i.downto k
+            i.downto(k) do |j|
               d = d + (i - j) / Float(i - j + 1) * (data[j] - mean_xj) ** 2
               mean_xj = (data[j] + (i - j) * mean_xj) / Float(i - j + 1)
 
@@ -166,7 +166,7 @@ module OnedClusterer
 
         likelihood = 0
         bin_left, bin_right = 0
-        for i in 0..(k-1)
+        k.times do |i|
           points_in_bin = cluster_sizes[i + base]
           index_right = index_left + points_in_bin - 1
 
@@ -187,7 +187,7 @@ module OnedClusterer
             mean = 0.0
             variance = 0.0
 
-            for j in index_left..index_right
+            index_left.upto(index_right) do |j|
               mean += data[j]
               variance += data[j] ** 2
             end
@@ -195,7 +195,7 @@ module OnedClusterer
             variance = (variance - points_in_bin * mean ** 2) / (points_in_bin - 1) if points_in_bin > 1
 
             if variance > 0
-              for j in index_left..index_right
+              index_left.upto(index_right) do |j|
                 likelihood += - (data[j] - mean) ** 2 / (2.0 * variance)
               end
               likelihood += points_in_bin * (Math.log(points_in_bin / Float(n))
