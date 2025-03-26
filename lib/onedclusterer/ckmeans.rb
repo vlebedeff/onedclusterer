@@ -69,10 +69,9 @@ module OnedClusterer
 
         # Choose an optimal number of levels between Kmin and Kmax
         kopt = select_levels(data, backtrack, kmin, kmax)
-        backtrack = backtrack[0..kopt]
 
         results = []
-        backtrack(backtrack) do |k, left, right|
+        backtrack(backtrack, kopt) do |k, left, right|
           results[k] = data[left..right]
         end
         results.drop(1)
@@ -85,10 +84,10 @@ module OnedClusterer
 
     private
 
-    def backtrack(matrix)
+    def backtrack(matrix, imax)
       right = matrix[0].size - 1
 
-      for k in (matrix.size - 1).downto 1
+      imax.downto(1) do |k|
         left = matrix[k][right]
 
         yield k, left, right
@@ -156,10 +155,9 @@ module OnedClusterer
 
       max_bic = 0.0
 
-      for k in kmin..kmax
+      kmin.upto(kmax) do |k|
         cluster_sizes = []
-        kbacktrack = backtrack[0..k]
-        backtrack(kbacktrack) do |cluster, left, right|
+        backtrack(backtrack, k) do |cluster, left, right|
           cluster_sizes[cluster] = right - left + 1
         end
 
